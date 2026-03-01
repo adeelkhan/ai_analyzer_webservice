@@ -7,10 +7,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/adeelkhan/code_diff/cmd/app/handlers"
-	"github.com/adeelkhan/code_diff/logger"
-	"github.com/adeelkhan/code_diff/middleware"
-	"github.com/adeelkhan/code_diff/utils"
+	"github.com/adeelkhan/code_diff/internal/auth"
+	"github.com/adeelkhan/code_diff/internal/handlers"
+	"github.com/adeelkhan/code_diff/internal/logger"
+	"github.com/adeelkhan/code_diff/internal/middleware"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,10 +25,10 @@ func main() {
 	if redisURL == "" {
 		redisURL = "localhost:6379"
 	}
-	util.InitRedis(redisURL)
+	auth.InitRedis(redisURL)
 
 	// Test Redis connection
-	client := util.GetRedisClient()
+	client := auth.GetRedisClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 

@@ -10,10 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/adeelkhan/code_diff/constants"
-	"github.com/adeelkhan/code_diff/logger"
-	"github.com/adeelkhan/code_diff/models"
-	"github.com/adeelkhan/code_diff/utils"
+	"github.com/adeelkhan/code_diff/internal/auth"
+	"github.com/adeelkhan/code_diff/internal/logger"
+	"github.com/adeelkhan/code_diff/internal/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -183,7 +182,7 @@ func TestGetToken_ValidTokenWorks(t *testing.T) {
 	// Use token to access protected endpoint
 	protectedRouter := gin.New()
 	protectedRouter.Use(func(c *gin.Context) {
-		claims, err := util.ValidateToken(strings.Split(c.GetHeader("Authorization"), " ")[1])
+		claims, err := auth.ValidateToken(strings.Split(c.GetHeader("Authorization"), " ")[1])
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			c.Abort()
@@ -236,7 +235,7 @@ func TestGenerateToken(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			token, err := util.GenerateToken(tt.userID, tt.email)
+			token, err := auth.GenerateToken(tt.userID, tt.email)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GenerateToken() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -249,7 +248,7 @@ func TestGenerateToken(t *testing.T) {
 }
 
 func TestValidateToken(t *testing.T) {
-	validToken, _ := util.GenerateToken("user123", "test@example.com")
+	validToken, _ := auth.GenerateToken("user123", "test@example.com")
 
 	tests := []struct {
 		name       string
@@ -279,7 +278,7 @@ func TestValidateToken(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			claims, err := util.ValidateToken(tt.token)
+			claims, err := auth.ValidateToken(tt.token)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ValidateToken() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -297,7 +296,7 @@ func TestValidateToken(t *testing.T) {
 }
 
 func TestValidateToken_Expired(t *testing.T) {
-	claims := util.JWTClaims{
+	claims := auth.JWTClaims{
 		UserID: "user123",
 		Email:  "test@example.com",
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -309,7 +308,7 @@ func TestValidateToken_Expired(t *testing.T) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, _ := token.SignedString([]byte("your-secret-key-change-in-production"))
 
-	_, err := util.ValidateToken(tokenString)
+	_, err := auth.ValidateToken(tokenString)
 	if err == nil {
 		t.Error("ValidateToken() should fail for expired token")
 	}
@@ -362,7 +361,7 @@ func TestJWTMiddleware(t *testing.T) {
 					return
 				}
 
-				claims, err := util.ValidateToken(bearerToken[1])
+				claims, err := auth.ValidateToken(bearerToken[1])
 				if err != nil {
 					c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 					c.Abort()
@@ -420,7 +419,7 @@ func TestJWTMiddleware_ValidToken(t *testing.T) {
 			return
 		}
 
-		claims, err := util.ValidateToken(bearerToken[1])
+		claims, err := auth.ValidateToken(bearerToken[1])
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			c.Abort()
@@ -440,7 +439,7 @@ func TestJWTMiddleware_ValidToken(t *testing.T) {
 		})
 	})
 
-	token, _ := util.GenerateToken("user123", "test@example.com")
+	token, _ := auth.GenerateToken("user123", "test@example.com")
 	req, _ := http.NewRequest("GET", "/protected", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 
@@ -509,7 +508,7 @@ func TestProcessRequest_InvalidToken(t *testing.T) {
 			c.Abort()
 			return
 		}
-		_, err := util.ValidateToken(bearerToken[1])
+		_, err := auth.ValidateToken(bearerToken[1])
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			c.Abort()
@@ -536,7 +535,7 @@ func TestProcessRequest_ValidToken_EmptyBody(t *testing.T) {
 	router := gin.New()
 	router.Use(func(c *gin.Context) {
 		bearerToken := strings.Split(c.GetHeader("Authorization"), " ")
-		claims, err := util.ValidateToken(bearerToken[1])
+		claims, err := auth.ValidateToken(bearerToken[1])
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			c.Abort()
@@ -548,7 +547,7 @@ func TestProcessRequest_ValidToken_EmptyBody(t *testing.T) {
 	})
 	router.POST("/process_request", ProcessRequest)
 
-	token, _ := util.GenerateToken("user123", "test@example.com")
+	token, _ := auth.GenerateToken("user123", "test@example.com")
 	req, _ := http.NewRequest("POST", "/process_request", bytes.NewBufferString("{}"))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
@@ -571,7 +570,7 @@ func TestProcessRequest_ValidToken_InvalidBody(t *testing.T) {
 	router := gin.New()
 	router.Use(func(c *gin.Context) {
 		bearerToken := strings.Split(c.GetHeader("Authorization"), " ")
-		claims, err := util.ValidateToken(bearerToken[1])
+		claims, err := auth.ValidateToken(bearerToken[1])
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			c.Abort()
@@ -583,7 +582,7 @@ func TestProcessRequest_ValidToken_InvalidBody(t *testing.T) {
 	})
 	router.POST("/process_request", ProcessRequest)
 
-	token, _ := util.GenerateToken("user123", "test@example.com")
+	token, _ := auth.GenerateToken("user123", "test@example.com")
 	req, _ := http.NewRequest("POST", "/process_request", bytes.NewBufferString("invalid json"))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
@@ -631,7 +630,7 @@ func TestRefreshToken(t *testing.T) {
 					return
 				}
 				token := strings.Split(c.GetHeader("Authorization"), " ")[1]
-				claims, _ := util.ValidateToken(token)
+				claims, _ := auth.ValidateToken(token)
 				c.Set("user_id", claims.UserID)
 				c.Set("email", claims.Email)
 				c.Next()
@@ -642,7 +641,7 @@ func TestRefreshToken(t *testing.T) {
 			req.Header.Set("Content-Type", "application/json")
 
 			if tt.setupAuth {
-				token, _ := util.GenerateToken("user123", "test@example.com")
+				token, _ := auth.GenerateToken("user123", "test@example.com")
 				req.Header.Set("Authorization", "Bearer "+token)
 			}
 
@@ -683,27 +682,27 @@ func TestRefreshToken(t *testing.T) {
 
 func TestValidateToken_AutoCleanupExpired(t *testing.T) {
 	// Generate a token
-	token, err := util.GenerateToken("cleanupuser", "test@example.com")
+	token, err := auth.GenerateToken("cleanupuser", "test@example.com")
 	if err != nil {
 		t.Fatalf("Failed to generate token: %v", err)
 	}
 
 	// Manually set token expiry in Redis to past
-	redisClient := util.GetRedisClient()
+	redisClient := auth.GetRedisClient()
 	ctx := context.Background()
 	if redisClient != nil {
 		// Set token with very short TTL that expires
-		redisClient.Set(ctx, constants.RedisTokenPrefix+"cleanupuser", token, 1*time.Millisecond)
+		redisClient.Set(ctx, auth.RedisTokenPrefix+"cleanupuser", token, 1*time.Millisecond)
 		time.Sleep(2 * time.Millisecond) // Wait for expiry
 
 		// Try to validate - should fail and clean up
-		_, err := util.ValidateToken(token)
+		_, err := auth.ValidateToken(token)
 		if err == nil {
 			t.Error("Expected error for expired token")
 		}
 
 		// Check that token was removed from Redis
-		_, err = redisClient.Get(ctx, constants.RedisTokenPrefix+"cleanupuser").Result()
+		_, err = redisClient.Get(ctx, auth.RedisTokenPrefix+"cleanupuser").Result()
 		if err != redis.Nil {
 			t.Error("Expected token to be cleaned up from Redis")
 		}

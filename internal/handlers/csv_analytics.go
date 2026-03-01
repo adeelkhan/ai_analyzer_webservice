@@ -3,8 +3,8 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/adeelkhan/code_diff/logger"
-	"github.com/adeelkhan/code_diff/models"
+	"github.com/adeelkhan/code_diff/internal/logger"
+	"github.com/adeelkhan/code_diff/internal/models"
 
 	"github.com/gin-gonic/gin"
 )

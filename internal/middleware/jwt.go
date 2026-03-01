@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/adeelkhan/code_diff/logger"
-	"github.com/adeelkhan/code_diff/utils"
+	"github.com/adeelkhan/code_diff/internal/auth"
+	"github.com/adeelkhan/code_diff/internal/logger"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,7 +31,7 @@ func JWTMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		claims, err := util.ValidateToken(bearerToken[1])
+		claims, err := auth.ValidateToken(bearerToken[1])
 		if err != nil {
 			log.Warn("JWT validation failed: %v", err)
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})

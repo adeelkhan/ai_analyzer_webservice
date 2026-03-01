@@ -7,9 +7,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/adeelkhan/code_diff/middleware"
-	"github.com/adeelkhan/code_diff/models"
-	"github.com/adeelkhan/code_diff/utils"
+	"github.com/adeelkhan/code_diff/internal/auth"
+	"github.com/adeelkhan/code_diff/internal/middleware"
+	"github.com/adeelkhan/code_diff/internal/models"
 
 	"github.com/gin-gonic/gin"
 )
@@ -68,7 +68,7 @@ func TestSumAgeHandler(t *testing.T) {
 	router.Use(middleware.JWTMiddleware())
 	router.GET("/analytics/sum_age", SumAge)
 
-	token, _ := util.GenerateToken("testuser", "test@example.com")
+	token, _ := auth.GenerateToken("testuser", "test@example.com")
 	req, _ := http.NewRequest("GET", "/analytics/sum_age", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 
@@ -120,7 +120,7 @@ func TestUsersByCountryHandler(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			body, _ := json.Marshal(UsersByCountryRequest{Country: tt.country})
-			token, _ := util.GenerateToken("testuser", "test@example.com")
+			token, _ := auth.GenerateToken("testuser", "test@example.com")
 
 			req, _ := http.NewRequest("POST", "/analytics/users_by_country", bytes.NewBuffer(body))
 			req.Header.Set("Authorization", "Bearer "+token)
@@ -174,7 +174,7 @@ func TestUsersOlderThanHandler(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			body, _ := json.Marshal(UsersOlderThanRequest{Age: tt.age})
-			token, _ := util.GenerateToken("testuser", "test@example.com")
+			token, _ := auth.GenerateToken("testuser", "test@example.com")
 
 			req, _ := http.NewRequest("POST", "/analytics/users_older_than", bytes.NewBuffer(body))
 			req.Header.Set("Authorization", "Bearer "+token)

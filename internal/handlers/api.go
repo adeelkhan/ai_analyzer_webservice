@@ -3,10 +3,9 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/adeelkhan/code_diff/constants"
-	"github.com/adeelkhan/code_diff/logger"
-	"github.com/adeelkhan/code_diff/models"
-	"github.com/adeelkhan/code_diff/utils"
+	"github.com/adeelkhan/code_diff/internal/auth"
+	"github.com/adeelkhan/code_diff/internal/logger"
+	"github.com/adeelkhan/code_diff/internal/models"
 
 	"github.com/gin-gonic/gin"
 )
@@ -32,7 +31,7 @@ func GetToken(c *gin.Context) {
 	}
 
 	log.Info("Login attempt for user: %s", req.Username)
-	token, err := util.GenerateToken(req.Username, req.Username+"@example.com")
+	token, err := auth.GenerateToken(req.Username, req.Username+"@example.com")
 	if err != nil {
 		log.Error("Failed to generate token for user %s: %v", req.Username, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -42,7 +41,7 @@ func GetToken(c *gin.Context) {
 	log.Info("Token generated successfully for user: %s", req.Username)
 	c.JSON(http.StatusOK, models.TokenResponse{
 		Token:     token,
-		ExpiresIn: constants.TokenExpirySeconds,
+		ExpiresIn: auth.TokenExpirySeconds,
 		Type:      "Bearer",
 	})
 }
@@ -70,8 +69,8 @@ func RefreshToken(c *gin.Context) {
 
 	emailStr, _ := email.(string)
 
-	// Use util.RefreshToken
-	token, err := util.RefreshToken(userIDStr, emailStr)
+	// Use auth.RefreshToken
+	token, err := auth.RefreshToken(userIDStr, emailStr)
 	if err != nil {
 		log.Error("Failed to refresh token for user %s: %v", userIDStr, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -81,7 +80,7 @@ func RefreshToken(c *gin.Context) {
 	log.Info("Token refreshed successfully for user %s", userIDStr)
 	c.JSON(http.StatusOK, models.TokenResponse{
 		Token:     token,
-		ExpiresIn: constants.TokenExpirySeconds,
+		ExpiresIn: auth.TokenExpirySeconds,
 		Type:      "Bearer",
 	})
 }
