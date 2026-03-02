@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This is a Go (Golang) project for code diff analysis. The module is `github.com/adeelkhan/analytics_service`.
+This is a Go (Golang) project for analysis. The module is `github.com/adeelkhan/analytics_service`.
 
 ## Build, Lint, and Test Commands
 
