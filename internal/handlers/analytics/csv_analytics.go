@@ -3,9 +3,9 @@ package analytics
 import (
 	"net/http"
 
-	"github.com/adeelkhan/code_diff/internal/logger"
-	"github.com/adeelkhan/code_diff/internal/models"
-	"github.com/adeelkhan/code_diff/internal/services"
+	"github.com/adeelkhan/analytics_service/internal/logger"
+	"github.com/adeelkhan/analytics_service/internal/models"
+	"github.com/adeelkhan/analytics_service/internal/services"
 
 	"github.com/gin-gonic/gin"
 )

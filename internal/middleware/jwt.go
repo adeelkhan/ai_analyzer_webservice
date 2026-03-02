@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/adeelkhan/code_diff/internal/auth"
-	"github.com/adeelkhan/code_diff/internal/logger"
+	"github.com/adeelkhan/analytics_service/internal/auth"
+	"github.com/adeelkhan/analytics_service/internal/logger"
 
 	"github.com/gin-gonic/gin"
 )

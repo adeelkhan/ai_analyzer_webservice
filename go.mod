@@ -1,4 +1,4 @@
-module github.com/adeelkhan/code_diff
+module github.com/adeelkhan/analytics_service
 
 go 1.25.0
 

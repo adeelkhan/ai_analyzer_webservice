@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/adeelkhan/code_diff/internal/infra/redis"
-	"github.com/adeelkhan/code_diff/internal/logger"
+	"github.com/adeelkhan/analytics_service/internal/infra/redis"
+	"github.com/adeelkhan/analytics_service/internal/logger"
 
 	"github.com/golang-jwt/jwt/v5"
 	redislib "github.com/redis/go-redis/v9"

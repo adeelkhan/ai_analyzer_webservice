@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/adeelkhan/code_diff/internal/auth"
+	"github.com/adeelkhan/analytics_service/internal/auth"
 
 	"github.com/gin-gonic/gin"
 )

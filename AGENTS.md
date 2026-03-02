@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This is a Go (Golang) project for code diff analysis. The module is `github.com/adeelkhan/code_diff`.
+This is a Go (Golang) project for code diff analysis. The module is `github.com/adeelkhan/analytics_service`.
 
 ## Build, Lint, and Test Commands
 
@@ -78,7 +78,7 @@ import (
 
     "github.com/pkg/errors"
 
-    "github.com/adeelkhan/code_diff/internal"
+    "github.com/adeelkhan/analytics_service/internal"
 )
 ```
 

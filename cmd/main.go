@@ -7,11 +7,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/adeelkhan/code_diff/internal/handlers/analytics"
-	"github.com/adeelkhan/code_diff/internal/handlers/auth"
-	"github.com/adeelkhan/code_diff/internal/infra/redis"
-	"github.com/adeelkhan/code_diff/internal/logger"
-	"github.com/adeelkhan/code_diff/internal/middleware"
+	"github.com/adeelkhan/analytics_service/internal/handlers/analytics"
+	"github.com/adeelkhan/analytics_service/internal/handlers/auth"
+	"github.com/adeelkhan/analytics_service/internal/infra/redis"
+	"github.com/adeelkhan/analytics_service/internal/logger"
+	"github.com/adeelkhan/analytics_service/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 )

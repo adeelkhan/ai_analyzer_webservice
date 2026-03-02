@@ -7,9 +7,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/adeelkhan/code_diff/internal/auth"
-	"github.com/adeelkhan/code_diff/internal/middleware"
-	"github.com/adeelkhan/code_diff/internal/models"
+	"github.com/adeelkhan/analytics_service/internal/auth"
+	"github.com/adeelkhan/analytics_service/internal/middleware"
+	"github.com/adeelkhan/analytics_service/internal/models"
 
 	"github.com/gin-gonic/gin"
 )

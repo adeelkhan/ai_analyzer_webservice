@@ -3,7 +3,7 @@ package redis
 import (
 	"context"
 
-	"github.com/adeelkhan/code_diff/internal/logger"
+	"github.com/adeelkhan/analytics_service/internal/logger"
 
 	"github.com/redis/go-redis/v9"
 )
