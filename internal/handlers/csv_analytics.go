@@ -5,13 +5,21 @@ import (
 
 	"github.com/adeelkhan/code_diff/internal/logger"
 	"github.com/adeelkhan/code_diff/internal/models"
+	"github.com/adeelkhan/code_diff/internal/services"
 
 	"github.com/gin-gonic/gin"
 )
 
 var csvLog = logger.GetLogger()
 
-type SumAgeRequest struct{}
+// Initialize analytics service once
+var analyticsService = services.NewAnalyticsService()
+
+// UsersResponse represents response for getting all users
+type UsersResponse struct {
+	Users []models.User `json:"users"`
+	Count int           `json:"count"`
+}
 
 type UsersByCountryRequest struct {
 	Country string `json:"country" binding:"required"`
@@ -25,8 +33,7 @@ type UsersOlderThanRequest struct {
 func SumAge(c *gin.Context) {
 	csvLog.Info("SumAge analytics requested")
 
-	repo := models.DefaultUserRepository()
-	response, err := repo.CalculateSumAge()
+	response, err := analyticsService.CalculateSumAge()
 	if err != nil {
 		csvLog.Error("Failed to calculate sum age: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -49,8 +56,7 @@ func UsersByCountry(c *gin.Context) {
 
 	csvLog.Info("UsersByCountry analytics requested for country: %s", req.Country)
 
-	repo := models.DefaultUserRepository()
-	response, err := repo.FindUsersByCountry(req.Country)
+	response, err := analyticsService.FindUsersByCountry(req.Country)
 	if err != nil {
 		csvLog.Error("Failed to find users by country %s: %v", req.Country, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -73,8 +79,7 @@ func UsersOlderThan(c *gin.Context) {
 
 	csvLog.Info("UsersOlderThan analytics requested for age: %d", req.Age)
 
-	repo := models.DefaultUserRepository()
-	response, err := repo.FindUsersOlderThan(req.Age)
+	response, err := analyticsService.FindUsersOlderThan(req.Age)
 	if err != nil {
 		csvLog.Error("Failed to find users older than %d: %v", req.Age, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -84,4 +89,22 @@ func UsersOlderThan(c *gin.Context) {
 	csvLog.Info("UsersOlderThan analytics completed - Found %d users older than %d",
 		response.Count, response.MinAge)
 	c.JSON(http.StatusOK, response)
+}
+
+// GetUsers returns all users - uses service layer
+func GetUsers(c *gin.Context) {
+	csvLog.Info("GetUsers requested")
+
+	users, err := analyticsService.GetUsers()
+	if err != nil {
+		csvLog.Error("Failed to get users: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	csvLog.Info("GetUsers completed - Found %d users", len(users))
+	c.JSON(http.StatusOK, UsersResponse{
+		Users: users,
+		Count: len(users),
+	})
 }

@@ -14,8 +14,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func TestUserRepository_LoadData(t *testing.T) {
-	repo := models.DefaultUserRepository()
+func TestRepository_LoadData(t *testing.T) {
+	repo := models.DefaultRepository()
 	users, err := repo.LoadData()
 	if err != nil {
 		t.Fatalf("LoadData() error = %v", err)
@@ -25,8 +25,8 @@ func TestUserRepository_LoadData(t *testing.T) {
 	}
 }
 
-func TestUserRepository_CalculateSumAge(t *testing.T) {
-	repo := models.DefaultUserRepository()
+func TestRepository_CalculateSumAge(t *testing.T) {
+	repo := models.DefaultRepository()
 	response, err := repo.CalculateSumAge()
 	if err != nil {
 		t.Fatalf("CalculateSumAge() error = %v", err)
@@ -39,8 +39,8 @@ func TestUserRepository_CalculateSumAge(t *testing.T) {
 	}
 }
 
-func TestUserRepository_FindUsersByCountry(t *testing.T) {
-	repo := models.DefaultUserRepository()
+func TestRepository_FindUsersByCountry(t *testing.T) {
+	repo := models.DefaultRepository()
 	response, err := repo.FindUsersByCountry("USA")
 	if err != nil {
 		t.Fatalf("FindUsersByCountry() error = %v", err)
@@ -50,8 +50,8 @@ func TestUserRepository_FindUsersByCountry(t *testing.T) {
 	}
 }
 
-func TestUserRepository_FindUsersOlderThan(t *testing.T) {
-	repo := models.DefaultUserRepository()
+func TestRepository_FindUsersOlderThan(t *testing.T) {
+	repo := models.DefaultRepository()
 	response, err := repo.FindUsersOlderThan(30)
 	if err != nil {
 		t.Fatalf("FindUsersOlderThan() error = %v", err)

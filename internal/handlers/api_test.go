@@ -12,7 +12,6 @@ import (
 
 	"github.com/adeelkhan/code_diff/internal/auth"
 	"github.com/adeelkhan/code_diff/internal/logger"
-	"github.com/adeelkhan/code_diff/internal/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -128,7 +127,7 @@ func TestGetToken(t *testing.T) {
 			}
 
 			if tt.wantToken {
-				var response models.TokenResponse
+				var response TokenResponse
 				if err := json.Unmarshal(w.Body.Bytes(), &response); err != nil {
 					t.Errorf("Failed to unmarshal token response: %v", err)
 					return
@@ -174,7 +173,7 @@ func TestGetToken_ValidTokenWorks(t *testing.T) {
 		t.Fatalf("Failed to get token: expected status %d, got %d", http.StatusOK, w.Code)
 	}
 
-	var tokenResponse models.TokenResponse
+	var tokenResponse TokenResponse
 	if err := json.Unmarshal(w.Body.Bytes(), &tokenResponse); err != nil {
 		t.Fatalf("Failed to unmarshal token response: %v", err)
 	}
@@ -559,7 +558,7 @@ func TestProcessRequest_ValidToken_EmptyBody(t *testing.T) {
 		t.Errorf("Expected status %d, got %d", http.StatusOK, w.Code)
 	}
 
-	var response models.Response
+	var response Response
 	if err := json.Unmarshal(w.Body.Bytes(), &response); err != nil {
 		t.Errorf("Failed to unmarshal response: %v", err)
 	}
@@ -653,7 +652,7 @@ func TestRefreshToken(t *testing.T) {
 			}
 
 			if tt.wantToken {
-				var response models.TokenResponse
+				var response TokenResponse
 				if err := json.Unmarshal(w.Body.Bytes(), &response); err != nil {
 					t.Errorf("Failed to unmarshal token response: %v", err)
 					return

@@ -5,16 +5,38 @@ import (
 
 	"github.com/adeelkhan/code_diff/internal/auth"
 	"github.com/adeelkhan/code_diff/internal/logger"
-	"github.com/adeelkhan/code_diff/internal/models"
 
 	"github.com/gin-gonic/gin"
 )
 
 var log = logger.GetLogger()
 
+// LoginRequest represents the login credentials
+type LoginRequest struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+// TokenResponse represents the token response
+type TokenResponse struct {
+	Token     string `json:"token"`
+	ExpiresIn int64  `json:"expires_in"`
+	Type      string `json:"type"`
+}
+
+// Request represents the request body for processing
+type Request struct {
+	// TODO: Add your request fields here
+}
+
+// Response represents the response body for processing
+type Response struct {
+	// TODO: Add your response fields here
+}
+
 // GetToken validates credentials and returns a JWT token
 func GetToken(c *gin.Context) {
-	var req models.LoginRequest
+	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		log.Warn("Get token failed: invalid request body - %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -39,7 +61,7 @@ func GetToken(c *gin.Context) {
 	}
 
 	log.Info("Token generated successfully for user: %s", req.Username)
-	c.JSON(http.StatusOK, models.TokenResponse{
+	c.JSON(http.StatusOK, TokenResponse{
 		Token:     token,
 		ExpiresIn: auth.TokenExpirySeconds,
 		Type:      "Bearer",
@@ -78,7 +100,7 @@ func RefreshToken(c *gin.Context) {
 	}
 
 	log.Info("Token refreshed successfully for user %s", userIDStr)
-	c.JSON(http.StatusOK, models.TokenResponse{
+	c.JSON(http.StatusOK, TokenResponse{
 		Token:     token,
 		ExpiresIn: auth.TokenExpirySeconds,
 		Type:      "Bearer",
@@ -87,7 +109,7 @@ func RefreshToken(c *gin.Context) {
 
 // ProcessRequest handles the main request processing
 func ProcessRequest(c *gin.Context) {
-	var req models.Request
+	var req Request
 	if err := c.ShouldBindJSON(&req); err != nil {
 		log.Warn("Process request failed: invalid request body - %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -101,7 +123,7 @@ func ProcessRequest(c *gin.Context) {
 	log.Info("Processing request for user: %s", userIDStr)
 	_ = email
 
-	c.JSON(http.StatusOK, models.Response{})
+	c.JSON(http.StatusOK, Response{})
 }
 
 // HealthCheck returns the health status of the service

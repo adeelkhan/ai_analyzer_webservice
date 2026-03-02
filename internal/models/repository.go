@@ -10,28 +10,22 @@ import (
 	"strings"
 )
 
-type User struct {
-	Name    string `json:"name"`
-	Age     int    `json:"age"`
-	Country string `json:"country"`
-}
-
-// UserRepository handles CSV data operations
-type UserRepository struct {
+// Repository handles CSV data operations
+type Repository struct {
 	csvPath string
 }
 
-// NewUserRepository creates a new UserRepository instance
-func NewUserRepository(csvPath string) *UserRepository {
-	return &UserRepository{
+// NewRepository creates a new Repository instance
+func NewRepository(csvPath string) *Repository {
+	return &Repository{
 		csvPath: csvPath,
 	}
 }
 
-// DefaultUserRepository creates a UserRepository with the default CSV location
-func DefaultUserRepository() *UserRepository {
+// DefaultRepository creates a Repository with the default CSV location
+func DefaultRepository() *Repository {
 	csvPath := filepath.Join(getProjectRoot(), "data", "users.csv")
-	return NewUserRepository(csvPath)
+	return NewRepository(csvPath)
 }
 
 func getProjectRoot() string {
@@ -40,8 +34,8 @@ func getProjectRoot() string {
 }
 
 // LoadData loads user data from CSV file
-func (ur *UserRepository) LoadData() ([]User, error) {
-	file, err := os.Open(ur.csvPath)
+func (r *Repository) LoadData() ([]User, error) {
+	file, err := os.Open(r.csvPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open CSV file: %w", err)
 	}
@@ -82,8 +76,8 @@ func (ur *UserRepository) LoadData() ([]User, error) {
 }
 
 // GetUsers returns all users
-func (ur *UserRepository) GetUsers() ([]User, error) {
-	return ur.LoadData()
+func (r *Repository) GetUsers() ([]User, error) {
+	return r.LoadData()
 }
 
 // CalculateSumAge calculates sum and average of all ages
@@ -93,8 +87,8 @@ type SumAgeResponse struct {
 	AverageAge int `json:"average_age"`
 }
 
-func (ur *UserRepository) CalculateSumAge() (SumAgeResponse, error) {
-	users, err := ur.LoadData()
+func (r *Repository) CalculateSumAge() (SumAgeResponse, error) {
+	users, err := r.LoadData()
 	if err != nil {
 		return SumAgeResponse{}, err
 	}
@@ -123,8 +117,8 @@ type UsersByCountryResponse struct {
 	Users   []User `json:"users"`
 }
 
-func (ur *UserRepository) FindUsersByCountry(country string) (UsersByCountryResponse, error) {
-	users, err := ur.LoadData()
+func (r *Repository) FindUsersByCountry(country string) (UsersByCountryResponse, error) {
+	users, err := r.LoadData()
 	if err != nil {
 		return UsersByCountryResponse{}, err
 	}
@@ -150,8 +144,8 @@ type UsersOlderThanResponse struct {
 	Users  []User `json:"users"`
 }
 
-func (ur *UserRepository) FindUsersOlderThan(age int) (UsersOlderThanResponse, error) {
-	users, err := ur.LoadData()
+func (r *Repository) FindUsersOlderThan(age int) (UsersOlderThanResponse, error) {
+	users, err := r.LoadData()
 	if err != nil {
 		return UsersOlderThanResponse{}, err
 	}
