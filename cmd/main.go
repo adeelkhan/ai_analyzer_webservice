@@ -7,8 +7,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/adeelkhan/code_diff/internal/auth"
 	"github.com/adeelkhan/code_diff/internal/handlers"
+	"github.com/adeelkhan/code_diff/internal/infra/redis"
 	"github.com/adeelkhan/code_diff/internal/logger"
 	"github.com/adeelkhan/code_diff/internal/middleware"
 
@@ -25,10 +25,10 @@ func main() {
 	if redisURL == "" {
 		redisURL = "localhost:6379"
 	}
-	auth.InitRedis(redisURL)
+	redis.Init(redisURL)
 
 	// Test Redis connection
-	client := auth.GetRedisClient()
+	client := redis.GetClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 

@@ -11,11 +11,12 @@ import (
 	"time"
 
 	"github.com/adeelkhan/code_diff/internal/auth"
+	"github.com/adeelkhan/code_diff/internal/infra/redis"
 	"github.com/adeelkhan/code_diff/internal/logger"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/redis/go-redis/v9"
+	redislib "github.com/redis/go-redis/v9"
 )
 
 var testLog = logger.GetLogger()
@@ -687,11 +688,11 @@ func TestValidateToken_AutoCleanupExpired(t *testing.T) {
 	}
 
 	// Manually set token expiry in Redis to past
-	redisClient := auth.GetRedisClient()
+	redisClient := redis.GetClient()
 	ctx := context.Background()
 	if redisClient != nil {
 		// Set token with very short TTL that expires
-		redisClient.Set(ctx, auth.RedisTokenPrefix+"cleanupuser", token, 1*time.Millisecond)
+		redisClient.Set(ctx, redis.TokenPrefix+"cleanupuser", token, 1*time.Millisecond)
 		time.Sleep(2 * time.Millisecond) // Wait for expiry
 
 		// Try to validate - should fail and clean up
@@ -701,8 +702,8 @@ func TestValidateToken_AutoCleanupExpired(t *testing.T) {
 		}
 
 		// Check that token was removed from Redis
-		_, err = redisClient.Get(ctx, auth.RedisTokenPrefix+"cleanupuser").Result()
-		if err != redis.Nil {
+		_, err = redisClient.Get(ctx, redis.TokenPrefix+"cleanupuser").Result()
+		if err != redislib.Nil {
 			t.Error("Expected token to be cleaned up from Redis")
 		}
 	}

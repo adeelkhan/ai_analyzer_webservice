@@ -6,17 +6,17 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/adeelkhan/code_diff/internal/infra/redis"
 	"github.com/adeelkhan/code_diff/internal/logger"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/redis/go-redis/v9"
+	redislib "github.com/redis/go-redis/v9"
 )
 
 var (
-	jwtSecret   = []byte("your-secret-key-change-in-production")
-	redisClient *redis.Client
-	ctx         = context.Background()
-	log         = logger.GetLogger()
+	jwtSecret = []byte("your-secret-key-change-in-production")
+	ctx       = context.Background()
+	log       = logger.GetLogger()
 )
 
 // TokenExpiryDuration is the duration for which a JWT token is valid (10 minutes)
@@ -24,24 +24,6 @@ const TokenExpiryDuration = 10 * time.Minute
 
 // TokenExpirySeconds is the expiry time in seconds for API responses
 const TokenExpirySeconds = 600 // 10 minutes * 60 seconds
-
-// RedisTokenPrefix is the prefix used for token keys in Redis
-const RedisTokenPrefix = "token:"
-
-// InitRedis initializes the Redis client
-func InitRedis(addr string) {
-	log.Info("Initializing Redis client at %s", addr)
-	redisClient = redis.NewClient(&redis.Options{
-		Addr:     addr,
-		Password: "",
-		DB:       0,
-	})
-}
-
-// GetRedisClient returns the Redis client
-func GetRedisClient() *redis.Client {
-	return redisClient
-}
 
 // JWTClaims represents JWT claims
 type JWTClaims struct {
@@ -72,8 +54,9 @@ func GenerateToken(userID, email string) (string, error) {
 	}
 
 	// Store token in Redis with configured expiry duration
-	if redisClient != nil {
-		err = redisClient.Set(ctx, RedisTokenPrefix+userID, tokenString, TokenExpiryDuration).Err()
+	client := redis.GetClient()
+	if client != nil {
+		err = client.Set(ctx, redis.TokenPrefix+userID, tokenString, TokenExpiryDuration).Err()
 		if err != nil {
 			log.Error("Failed to store token in Redis for user %s: %v", userID, err)
 			return "", fmt.Errorf("failed to store token in redis: %w", err)
@@ -96,9 +79,12 @@ func ValidateToken(tokenString string) (*JWTClaims, error) {
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			log.Info("Token expired, attempting cleanup")
-			if claims, ok := token.Claims.(*JWTClaims); ok && redisClient != nil {
-				redisClient.Del(ctx, RedisTokenPrefix+claims.UserID)
-				log.Info("Cleaned up expired token for user %s from Redis", claims.UserID)
+			if claims, ok := token.Claims.(*JWTClaims); ok {
+				client := redis.GetClient()
+				if client != nil {
+					client.Del(ctx, redis.TokenPrefix+claims.UserID)
+					log.Info("Cleaned up expired token for user %s from Redis", claims.UserID)
+				}
 			}
 		}
 		log.Error("Token validation failed: %v", err)
@@ -111,9 +97,10 @@ func ValidateToken(tokenString string) (*JWTClaims, error) {
 		return nil, errors.New("invalid token")
 	}
 
-	if redisClient != nil {
-		storedToken, err := redisClient.Get(ctx, RedisTokenPrefix+claims.UserID).Result()
-		if err == redis.Nil {
+	client := redis.GetClient()
+	if client != nil {
+		storedToken, err := client.Get(ctx, redis.TokenPrefix+claims.UserID).Result()
+		if errors.Is(err, redislib.Nil) {
 			log.Error("Token not found in Redis for user %s", claims.UserID)
 			return nil, errors.New("token not found in redis")
 		} else if err != nil {
@@ -133,8 +120,9 @@ func ValidateToken(tokenString string) (*JWTClaims, error) {
 
 // InvalidateToken removes token from Redis
 func InvalidateToken(userID string) error {
-	if redisClient != nil {
-		err := redisClient.Del(ctx, RedisTokenPrefix+userID).Err()
+	client := redis.GetClient()
+	if client != nil {
+		err := client.Del(ctx, redis.TokenPrefix+userID).Err()
 		if err != nil {
 			log.Error("Failed to invalidate token for user %s: %v", userID, err)
 			return err
@@ -148,8 +136,9 @@ func InvalidateToken(userID string) error {
 func RefreshToken(userID, email string) (string, error) {
 	log.Info("Refreshing token for user: %s", userID)
 
-	if redisClient != nil {
-		err := redisClient.Del(ctx, RedisTokenPrefix+userID).Err()
+	client := redis.GetClient()
+	if client != nil {
+		err := client.Del(ctx, redis.TokenPrefix+userID).Err()
 		if err != nil {
 			log.Error("Failed to invalidate old token for user %s: %v", userID, err)
 			return "", fmt.Errorf("failed to invalidate old token: %w", err)
