@@ -7,7 +7,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/adeelkhan/code_diff/internal/handlers"
+	"github.com/adeelkhan/code_diff/internal/handlers/analytics"
+	"github.com/adeelkhan/code_diff/internal/handlers/auth"
 	"github.com/adeelkhan/code_diff/internal/infra/redis"
 	"github.com/adeelkhan/code_diff/internal/logger"
 	"github.com/adeelkhan/code_diff/internal/middleware"
@@ -39,16 +40,16 @@ func main() {
 
 	r := gin.Default()
 
-	r.GET("/health", handlers.HealthCheckHandler)
-	r.POST("/get_token", handlers.GetTokenHandler)
+	r.GET("/health", auth.HealthCheckHandler)
+	r.POST("/get_token", auth.GetTokenHandler)
 
 	protected := r.Group("/")
 	protected.Use(middleware.JWTMiddleware())
-	protected.POST("/refresh_token", handlers.RefreshTokenHandler)
+	protected.POST("/refresh_token", auth.RefreshTokenHandler)
 
-	protected.GET("/analytics/sum_age", handlers.SumAgeHandler)
-	protected.POST("/analytics/users_by_country", handlers.UsersByCountryHandler)
-	protected.POST("/analytics/users_older_than", handlers.UsersOlderThanHandler)
+	protected.GET("/analytics/sum_age", analytics.SumAgeHandler)
+	protected.POST("/analytics/users_by_country", analytics.UsersByCountryHandler)
+	protected.POST("/analytics/users_older_than", analytics.UsersOlderThanHandler)
 
 	go func() {
 		log.Info("Server starting on port 9991")
