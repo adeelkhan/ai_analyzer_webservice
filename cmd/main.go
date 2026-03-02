@@ -20,14 +20,12 @@ var log = logger.GetLogger()
 func main() {
 	log.Info("Starting application...")
 
-	// Initialize Redis
 	redisURL := os.Getenv("REDIS_URL")
 	if redisURL == "" {
 		redisURL = "localhost:6379"
 	}
 	redis.Init(redisURL)
 
-	// Test Redis connection
 	client := redis.GetClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -41,23 +39,17 @@ func main() {
 
 	r := gin.Default()
 
-	// Public routes (no JWT required)
-	r.GET("/health", handlers.HealthCheck)
-	r.GET("/hello", handlers.HelloWorld)
-	r.POST("/get_token", handlers.GetToken)
+	r.GET("/health", handlers.HealthCheckHandler)
+	r.POST("/get_token", handlers.GetTokenHandler)
 
-	// Protected routes (JWT required)
 	protected := r.Group("/")
 	protected.Use(middleware.JWTMiddleware())
-	protected.POST("/process_request", handlers.ProcessRequest)
-	protected.POST("/refresh_token", handlers.RefreshToken)
+	protected.POST("/refresh_token", handlers.RefreshTokenHandler)
 
-	// CSV Analytics endpoints (protected)
-	protected.GET("/analytics/sum_age", handlers.SumAge)
-	protected.POST("/analytics/users_by_country", handlers.UsersByCountry)
-	protected.POST("/analytics/users_older_than", handlers.UsersOlderThan)
+	protected.GET("/analytics/sum_age", handlers.SumAgeHandler)
+	protected.POST("/analytics/users_by_country", handlers.UsersByCountryHandler)
+	protected.POST("/analytics/users_older_than", handlers.UsersOlderThanHandler)
 
-	// Start server in goroutine
 	go func() {
 		log.Info("Server starting on port 9991")
 		if err := r.Run(":9991"); err != nil {
@@ -65,7 +57,6 @@ func main() {
 		}
 	}()
 
-	// Wait for interrupt signal
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit

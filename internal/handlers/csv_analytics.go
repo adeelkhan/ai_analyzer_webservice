@@ -12,7 +12,6 @@ import (
 
 var csvLog = logger.GetLogger()
 
-// Initialize analytics service once
 var analyticsService = services.NewAnalyticsService()
 
 // UsersResponse represents response for getting all users
@@ -29,8 +28,8 @@ type UsersOlderThanRequest struct {
 	Age int `json:"age" binding:"required"`
 }
 
-// SumAge returns sum of ages for all users
-func SumAge(c *gin.Context) {
+// SumAgeHandler returns sum of ages for all users
+func SumAgeHandler(c *gin.Context) {
 	csvLog.Info("SumAge analytics requested")
 
 	response, err := analyticsService.CalculateSumAge()
@@ -45,8 +44,8 @@ func SumAge(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// UsersByCountry returns users from a specific country
-func UsersByCountry(c *gin.Context) {
+// UsersByCountryHandler returns users from a specific country
+func UsersByCountryHandler(c *gin.Context) {
 	var req UsersByCountryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		csvLog.Warn("UsersByCountry failed: invalid request - %v", err)
@@ -68,8 +67,8 @@ func UsersByCountry(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// UsersOlderThan returns users older than specified age
-func UsersOlderThan(c *gin.Context) {
+// UsersOlderThanHandler returns users older than specified age
+func UsersOlderThanHandler(c *gin.Context) {
 	var req UsersOlderThanRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		csvLog.Warn("UsersOlderThan failed: invalid request - %v", err)
@@ -91,8 +90,8 @@ func UsersOlderThan(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// GetUsers returns all users - uses service layer
-func GetUsers(c *gin.Context) {
+// GetUsersHandler returns all users - uses service layer
+func GetUsersHandler(c *gin.Context) {
 	csvLog.Info("GetUsers requested")
 
 	users, err := analyticsService.GetUsers()

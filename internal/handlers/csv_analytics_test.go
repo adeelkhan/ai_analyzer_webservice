@@ -61,12 +61,12 @@ func TestRepository_FindUsersOlderThan(t *testing.T) {
 	}
 }
 
-func TestSumAgeHandler(t *testing.T) {
+func TestSumAgeHandlerHandler(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	router := gin.New()
 	router.Use(middleware.JWTMiddleware())
-	router.GET("/analytics/sum_age", SumAge)
+	router.GET("/analytics/sum_age", SumAgeHandler)
 
 	token, _ := auth.GenerateToken("testuser", "test@example.com")
 	req, _ := http.NewRequest("GET", "/analytics/sum_age", nil)
@@ -90,12 +90,12 @@ func TestSumAgeHandler(t *testing.T) {
 	}
 }
 
-func TestUsersByCountryHandler(t *testing.T) {
+func TestUsersByCountryHandlerHandler(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	router := gin.New()
 	router.Use(middleware.JWTMiddleware())
-	router.POST("/analytics/users_by_country", UsersByCountry)
+	router.POST("/analytics/users_by_country", UsersByCountryHandler)
 
 	tests := []struct {
 		name      string
@@ -147,12 +147,12 @@ func TestUsersByCountryHandler(t *testing.T) {
 	}
 }
 
-func TestUsersOlderThanHandler(t *testing.T) {
+func TestUsersOlderThanHandlerHandler(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	router := gin.New()
 	router.Use(middleware.JWTMiddleware())
-	router.POST("/analytics/users_older_than", UsersOlderThan)
+	router.POST("/analytics/users_older_than", UsersOlderThanHandler)
 
 	tests := []struct {
 		name     string
